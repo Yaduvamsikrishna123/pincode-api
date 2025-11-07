@@ -1,0 +1,142 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pincode Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .search-box {
+            display: flex;
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .clear-btn {
+            background-color: #f44336;
+            margin-left: 5px;
+            border-radius: 4px;
+        }
+        
+        .clear-btn:hover {
+            background-color: #d32f2f;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .office {
+            background-color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .error {
+            color: #d32f2f;
+            padding: 10px;
+            background-color: #ffebee;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pincode Lookup</h1>
+        <form action="/search" method="GET" class="search-box">
+            <input type="text" 
+                   name="pincode" 
+                   id="pincodeInput"
+                   placeholder="Enter 6-digit pincode" 
+                   value="{{.Pincode}}" 
+                   pattern="\d{6}" 
+                   maxlength="6"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                   required>
+            <button type="submit">Search</button>
+            <button type="button" onclick="clearForm()" class="clear-btn">Clear</button>
+        </form>
+
+        {{if .Error}}
+            <div class="error">{{.Error}}</div>
+        {{end}}
+
+        {{if .Response}}
+            <div class="result">
+                <h2>Results for Pincode: {{.Pincode}}</h2>
+                {{if .Response.Status}}
+                    <p><strong>Status:</strong> {{.Response.Message}}</p>
+                    {{range .Response.PostOffice}}
+                        <div class="office">
+                            <p><strong>Post Office:</strong> {{.Name}}</p>
+                            {{if .BranchType}}<p><strong>Branch Type:</strong> {{.BranchType}}</p>{{end}}
+                            {{if .DeliveryStatus}}<p><strong>Delivery Status:</strong> {{.DeliveryStatus}}</p>{{end}}
+                            <p><strong>District:</strong> {{.District}}</p>
+                            <p><strong>State:</strong> {{.State}}</p>
+                            <p><strong>Pincode:</strong> {{.Pincode}}</p>
+                            {{if .Region}}<p><strong>Region:</strong> {{.Region}}</p>{{end}}
+                            {{if .Circle}}<p><strong>Circle:</strong> {{.Circle}}</p>{{end}}
+                            {{if .Division}}<p><strong>Division:</strong> {{.Division}}</p>{{end}}
+                        </div>
+                    {{end}}
+                {{else}}
+                    <p>No results found for this pincode.</p>
+                {{end}}
+            </div>
+        {{end}}
+    </div>
+    
+    <script>
+        function clearForm() {
+            document.getElementById('pincodeInput').value = '';
+            // Optional: Clear the results if needed
+            const resultDiv = document.querySelector('.result');
+            if (resultDiv) {
+                resultDiv.style.display = 'none';
+            }
+        }
+        
+        // Prevent form submission if input is not 6 digits
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const pincode = document.getElementById('pincodeInput').value;
+            if (pincode.length !== 6) {
+                e.preventDefault();
+                alert('Please enter exactly 6 digits');
+                return false;
+            }
+            return true;
+        });
+    </script>
+</body>
+</html>
